@@ -1,0 +1,25 @@
+--- lua/src/loslib.c.orig
++++ lua/src/loslib.c
+@@ -140,8 +140,9 @@
+ 
+ 
+ static int os_execute (lua_State *L) {
+-  const char *cmd = luaL_optstring(L, 1, NULL);
+   int stat;
++#ifndef IOS_BUILD
++  const char *cmd = luaL_optstring(L, 1, NULL);
+   errno = 0;
+   stat = system(cmd);
+   if (cmd != NULL)
+@@ -150,6 +151,11 @@
+     lua_pushboolean(L, stat);  /* true if there is a shell */
+     return 1;
+   }
++#else
++  stat = 0;
++  lua_pushboolean(L, stat);
++  return 1;
++#endif
+ }
+ 
+ 
