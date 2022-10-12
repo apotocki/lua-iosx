@@ -1,4 +1,5 @@
 /.DS_STORE
-/lua*
+/lua
+/lua*.gz
 /frameworks
 /frameworks.built
