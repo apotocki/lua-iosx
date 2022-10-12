@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
     s.version      = "5.4.4.1"
     s.summary      = "LUA library"
     s.homepage     = "https://github.com/apotocki/lua-iosx"
-    s.license      = "BSD"
+    s.license      = "MIT"
     s.author       = { "Alexander Pototskiy" => "alex.a.potocki@gmail.com" }
     s.social_media_url = "https://www.linkedin.com/in/alexander-pototskiy"
     s.ios.deployment_target = "13.4"
