@@ -67,13 +67,7 @@ generic_double_build()
 
 build_macos_libs()
 {
-    generic_build macos-$1 "-arch $1"
-    if [ -d lua/src/macos ]; then
-        rm -rf lua/src/macos
-    fi
-    mkdir lua/src/macos
-    cp lua/src/macos-$HOST_ARC/liblua.a lua/src/macos/liblua.a
-    #lipo -create lua/src/macos-arm64/liblua.a lua/src/macos-x86_64/liblua.a -output lua/src/macos/liblua.a
+    generic_double_build macos
 }
 
 build_catalyst_libs()
@@ -100,7 +94,8 @@ fi
 patch -p0 <$SCRIPT_DIR/loslib.c.patch
 rm -f lua/src/lua.c lua/src/luac.c
 
-build_macos_libs $HOST_ARC
+
+build_macos_libs
 build_catalyst_libs
 build_simulator_libs
 build_device_libs
