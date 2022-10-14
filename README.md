@@ -1,8 +1,8 @@
-## LUA for iOS and Mac OS X (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
+## LUA for iOS and macOS (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
 
 Supported version: 5.4.4
 
-This repo provides a universal script for building static LUA library for use in iOS and Mac OS X applications.
+This repo provides a universal script for building static LUA library for use in iOS and macOS applications.
 The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.4.tar.gz
 
 ## Prerequisites
@@ -27,7 +27,7 @@ The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.
     use_frameworks!
     pod 'lua-iosx', '~> 5.4.4'
     # or optionally more precisely
-    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.4.1'
+    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.4.3'
 ```    
 install new dependency:
 ```
