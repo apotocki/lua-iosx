@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name         = "lua-iosx"
-    s.version      = "5.4.4.1"
+    s.version      = "5.4.4.2"
     s.summary      = "LUA library"
     s.homepage     = "https://github.com/apotocki/lua-iosx"
     s.license      = "MIT"
