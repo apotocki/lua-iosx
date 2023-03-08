@@ -15,7 +15,7 @@ jobs:
     - name: Build
       run: |
         scripts/build.sh
-        for i in frameworks/*/; do cd $i && zip -9 -r ../"$(basename -- $i).zip" * & done; wait
+        for i in frameworks/*/; do cd frameworks && zip -9 -r "$(basename -- $i).zip" $(basename -- $i) & done; wait
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
