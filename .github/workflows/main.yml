@@ -1,4 +1,4 @@
-name: Build ICU
+name: Build LUA
 on:
   release:
     types: [published]
