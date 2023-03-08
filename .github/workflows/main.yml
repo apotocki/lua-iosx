@@ -15,9 +15,10 @@ jobs:
     - name: Build
       run: |
         scripts/build.sh
-        for i in frameworks/*/; do cd frameworks && zip -9 -r "$(basename -- $i).zip" $(basename -- $i) & done; wait
-        mv frameworks/Headers frameworks/include
-        cd frameworks && zip -9 include.zip include
+        for i in frameworks/*.xcframework/; do cd frameworks && zip -9 -r "$(basename -- $i).zip" $(basename -- $i) & done; wait
+        cd frameworks
+        mv Headers include
+        zip -9 include.zip include
         wait
     - name: Release
       uses: softprops/action-gh-release@v1
