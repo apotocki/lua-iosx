@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name         = "lua-iosx"
-    s.version      = "5.4.4.3"
+    s.version      = "5.4.4.4"
     s.summary      = "LUA XCFramework for macOS and iOS, including both arm64 and x86_64 builds for Simulator and Catalyst."
     s.homepage     = "https://github.com/apotocki/lua-iosx"
     s.license      = "MIT"

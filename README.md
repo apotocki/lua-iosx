@@ -27,7 +27,7 @@ The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.
     use_frameworks!
     pod 'lua-iosx', '~> 5.4.4'
     # or optionally more precisely
-    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.4.3'
+    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.4.4'
 ```    
 install new dependency:
 ```
