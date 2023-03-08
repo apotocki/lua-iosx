@@ -18,6 +18,7 @@ jobs:
         for i in frameworks/*/; do cd frameworks && zip -9 -r "$(basename -- $i).zip" $(basename -- $i) & done; wait
         mv frameworks/Headers frameworks/include
         cd frameworks && zip -9 include.zip include
+        wait
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
