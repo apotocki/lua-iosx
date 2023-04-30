@@ -20,7 +20,7 @@ The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.
     cd lua-iosx
     scripts/build.sh
 
-    # have fun, the result artifacts  will be located in 'frameworks' folder.
+    # have fun, the result artifacts will be located in 'frameworks' folder.
 ```    
  - Use cocoapods. Add the following lines into your project's Podfile:
 ```
