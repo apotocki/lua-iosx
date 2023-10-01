@@ -1,9 +1,9 @@
 ## LUA for iOS and macOS (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
 
-Supported version: 5.4.5
+Supported version: 5.4.6
 
 This repo provides a universal script for building static LUA library for use in iOS and macOS applications.
-The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.5.tar.gz
+The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.6.tar.gz
 
 ## Prerequisites
   1) Xcode must be installed because xcodebuild is used to create xcframeworks
@@ -14,7 +14,7 @@ The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.
  - Manually
 ```
     # clone the repo
-    git clone -b 5.4.5 https://github.com/apotocki/lua-iosx
+    git clone -b 5.4.6 https://github.com/apotocki/lua-iosx
     
     # build libraries
     cd lua-iosx
@@ -25,9 +25,9 @@ The latest supported LUA version is taken from: https://www.lua.org/ftp/lua-5.4.
  - Use cocoapods. Add the following lines into your project's Podfile:
 ```
     use_frameworks!
-    pod 'lua-iosx', '~> 5.4.5'
+    pod 'lua-iosx', '~> 5.4.6'
     # or optionally more precisely
-    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.5.0'
+    # pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.4.6.0'
 ```    
 install new dependency:
 ```
