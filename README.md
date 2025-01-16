@@ -1,4 +1,5 @@
-[<img src="https://api.gitsponsors.com/api/badge/img?id=550458554" height="20">](https://api.gitsponsors.com/api/badge/link?p=7CZMAf5OYzLudfMZSz9tTID/3sPpV8jK0BsDX1HXsWlHsw5qmnpks7Aaj91CvvErioZd0N9ikkKAUCQk7CpN8TSUuVg18CQ0sUBxPr9yVp9NwYLFEnrxpGs96pidXcUD7KQGVlK7UkyR3IVm13t2sQ==)
+[<img src="https://api.gitsponsors.com/api/badge/img?id=550458554" height="40">](https://api.gitsponsors.com/api/badge/link?p=7CZMAf5OYzLudfMZSz9tTID/3sPpV8jK0BsDX1HXsWlHsw5qmnpks7Aaj91CvvErioZd0N9ikkKAUCQk7CpN8TSUuVg18CQ0sUBxPr9yVp9NwYLFEnrxpGs96pidXcUD7KQGVlK7UkyR3IVm13t2sQ==)
+[<img src="https://api.gitsponsors.com/api/badge/img?id=550458554" height="40">](https://api.gitsponsors.com/api/badge/link?p=7CZMAf5OYzLudfMZSz9tTID/3sPpV8jK0BsDX1HXsWlHsw5qmnpks7Aaj91CvvErioZd0N9ikkKAUCQk7CpN8TSUuVg18CQ0sUBxPr9yVp9NwYLFEnrxpGs96pidXcUD7KQGVlK7UkyR3IVm13t2sQ==)
 
 ## LUA for iOS and macOS (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
 
