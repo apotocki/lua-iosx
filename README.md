@@ -1,4 +1,4 @@
-[<img src="https://api.gitsponsors.com/api/badge/img?id=550458554" height="40">](https://api.gitsponsors.com/api/badge/link?p=7CZMAf5OYzLudfMZSz9tTID/3sPpV8jK0BsDX1HXsWlHsw5qmnpks7Aaj91CvvErioZd0N9ikkKAUCQk7CpN8TSUuVg18CQ0sUBxPr9yVp9NwYLFEnrxpGs96pidXcUD7KQGVlK7UkyR3IVm13t2sQ==)
+[<img src="https://api.gitsponsors.com/api/badge/img?id=550458554" height="50">](https://api.gitsponsors.com/api/badge/link?p=7CZMAf5OYzLudfMZSz9tTJTWlTBs3oYznejemgQ7z5pp9YrAh0OF5dw93jmz+jI/JIRohjpacC04HjHnS24yqfwEs2+G8GlCS2XZrFY1kaGjCzhi+gXovxm3yl7P3/iiWI3outF4tnfhj9we9sUK6Q==)
 
 ## LUA for iOS and macOS (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
 
