@@ -1,0 +1,27 @@
+name: Build Lua
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+        - 5.5.1.**
+  workflow_dispatch:
+jobs:
+  Build:
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: |
+        scripts/build.sh -p=macosx-both,ios,iossim-both,catalyst-both,xros,xrossim-both,watchos,watchossim-both,tvos,tvossim-both
+        cd frameworks
+        zip -9 -r lua.xcframework.zip lua.xcframework
+        mv Headers include
+        zip -9 -r include.zip include
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          frameworks/*.zip

@@ -1,114 +1,185 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
 ################## SETUP BEGIN
 THREAD_COUNT=$(sysctl hw.ncpu | awk '{print $2}')
 HOST_ARC=$( uname -m )
 XCODE_ROOT=$( xcode-select -print-path )
-LUA_VER=5.4.6
+LUA_VER=5.5.1
+MACOSX_VERSION_ARM=12.3
+MACOSX_VERSION_X86_64=10.13
+IOS_VERSION=13.4
+IOS_SIM_VERSION=13.4
+CATALYST_VERSION=13.4
+TVOS_VERSION=13.0
+TVOS_SIM_VERSION=13.0
+WATCHOS_VERSION=11.0
+WATCHOS_SIM_VERSION=11.0
+XROS_VERSION=1.0
+XROS_SIM_VERSION=1.0
 ################## SETUP END
-DEVSYSROOT=$XCODE_ROOT/Platforms/iPhoneOS.platform/Developer
-SIMSYSROOT=$XCODE_ROOT/Platforms/iPhoneSimulator.platform/Developer
-MACSYSROOT=$XCODE_ROOT/Platforms/MacOSX.platform/Developer
 
+XROSSYSROOT=$XCODE_ROOT/Platforms/XROS.platform/Developer
+XROSSIMSYSROOT=$XCODE_ROOT/Platforms/XRSimulator.platform/Developer
+TVOSSYSROOT=$XCODE_ROOT/Platforms/AppleTVOS.platform/Developer
+TVOSSIMSYSROOT=$XCODE_ROOT/Platforms/AppleTVSimulator.platform/Developer
+WATCHOSSYSROOT=$XCODE_ROOT/Platforms/WatchOS.platform/Developer
+WATCHOSSIMSYSROOT=$XCODE_ROOT/Platforms/WatchSimulator.platform/Developer
+
+BUILD_PLATFORMS_ALL="macosx,macosx-arm64,macosx-x86_64,macosx-both,ios,iossim,iossim-arm64,iossim-x86_64,iossim-both,catalyst,catalyst-arm64,catalyst-x86_64,catalyst-both,xros,xrossim,xrossim-arm64,xrossim-x86_64,xrossim-both,tvos,tvossim,tvossim-both,tvossim-arm64,tvossim-x86_64,watchos,watchossim,watchossim-both,watchossim-arm64,watchossim-x86_64"
+
+LUA_VER_NAME=lua-$LUA_VER
 BUILD_DIR="$( cd "$( dirname "./" )" >/dev/null 2>&1 && pwd )"
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-if [ ! -f "$BUILD_DIR/frameworks.built" ]; then
+BUILD_PLATFORMS="macosx,ios,iossim,catalyst"
+[[ -d $XROSSYSROOT/SDKs/XROS.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,xros"
+[[ -d $XROSSIMSYSROOT/SDKs/XRSimulator.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,xrossim"
+[[ -d $TVOSSYSROOT/SDKs/AppleTVOS.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,tvos"
+[[ -d $TVOSSIMSYSROOT/SDKs/AppleTVSimulator.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,tvossim"
+[[ -d $WATCHOSSYSROOT/SDKs/WatchOS.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,watchos"
+[[ -d $WATCHOSSIMSYSROOT/SDKs/WatchSimulator.sdk ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,watchossim-both"
 
-if [[ $HOST_ARC == arm* ]]; then
-    LUA_ARC=arm
-elif [[ $HOST_ARC == x86* ]]; then
-    LUA_ARC=x86
-else
-    LUA_ARC=unknown
+REBUILD=false
+
+# parse command line
+for i in "$@"; do
+  case $i in
+    -p=*|--platforms=*)
+      BUILD_PLATFORMS="${i#*=},"
+      shift # past argument=value
+      ;;
+    --rebuild)
+      REBUILD=true
+      shift # past argument with no value
+      ;;
+    -*|--*)
+      echo "Unknown option $i"
+      exit 1
+      ;;
+    *)
+      ;;
+  esac
+done
+
+[[ "$BUILD_PLATFORMS" == *"macosx-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,macosx-arm64,macosx-x86_64"
+[[ "$BUILD_PLATFORMS" == *"iossim-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,iossim-arm64,iossim-x86_64"
+[[ "$BUILD_PLATFORMS" == *"catalyst-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,catalyst-arm64,catalyst-x86_64"
+[[ "$BUILD_PLATFORMS" == *"xrossim-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,xrossim-arm64,xrossim-x86_64"
+[[ "$BUILD_PLATFORMS" == *"tvossim-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,tvossim-arm64,tvossim-x86_64"
+[[ "$BUILD_PLATFORMS" == *"watchossim-both"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,watchossim-arm64,watchossim-x86_64"
+[[ "$BUILD_PLATFORMS," == *"macosx,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,macosx-$HOST_ARC"
+[[ "$BUILD_PLATFORMS," == *"iossim,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,iossim-$HOST_ARC"
+[[ "$BUILD_PLATFORMS," == *"catalyst,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,catalyst-$HOST_ARC"
+[[ "$BUILD_PLATFORMS," == *"xrossim,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,xrossim-$HOST_ARC"
+[[ "$BUILD_PLATFORMS," == *"tvossim,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,tvossim-$HOST_ARC"
+[[ "$BUILD_PLATFORMS," == *"watchossim,"* ]] && BUILD_PLATFORMS="$BUILD_PLATFORMS,watchossim-$HOST_ARC"
+
+BUILD_PLATFORMS=" ${BUILD_PLATFORMS//,/ } "
+
+for i in $BUILD_PLATFORMS; do :;
+if [[ ! ",$BUILD_PLATFORMS_ALL," == *",$i,"* ]]; then
+    echo "Unknown platform '$i'"
+    exit 1
+fi
+done
+
+# An interrupted download can leave a partial archive or source tree,
+# so validate the files we need and extract into a temporary directory renamed on success.
+if [[ ! -f $LUA_VER_NAME/src/Makefile || ! -f $LUA_VER_NAME/src/lua.h ]]; then
+    echo downloading $LUA_VER_NAME ...
+    rm -rf $LUA_VER_NAME $LUA_VER_NAME.download $LUA_VER_NAME.tar.gz
+    curl -fL https://www.lua.org/ftp/$LUA_VER_NAME.tar.gz -o $LUA_VER_NAME.tar.gz
+    mkdir $LUA_VER_NAME.download
+    tar -xzf $LUA_VER_NAME.tar.gz -C $LUA_VER_NAME.download
+    mv $LUA_VER_NAME.download/$LUA_VER_NAME $LUA_VER_NAME
+    rm -rf $LUA_VER_NAME.download $LUA_VER_NAME.tar.gz
 fi
 
-if [ ! -f lua-$LUA_VER.tar.gz ]; then
-    curl -L https://www.lua.org/ftp/lua-$LUA_VER.tar.gz -o lua-$LUA_VER.tar.gz
-fi
-if [ ! -d lua ]; then
-    echo "extracting lua-$LUA_VER.tar.gz ..."
-    tar -xf lua-$LUA_VER.tar.gz
-    mv lua-$LUA_VER lua
-fi
+# the library objects as listed by the upstream Makefile (without the lua and luac programs)
+LUA_OBJECTS=$(awk -F= '/^(CORE_O|LIB_O)=/{print $2}' $LUA_VER_NAME/src/Makefile)
+COMMON_CFLAGS="-std=gnu99 -O2 -Wall -Wextra -DLUA_COMPAT_5_3"
 
-CFLAGS="-std=gnu99 -Oz -Wall -Wextra -DLUA_COMPAT_5_3 -DLUA_USE_MACOSX -DLUA_USE_READLINE"
+echo building $LUA_VER_NAME "(-j$THREAD_COUNT)" ...
 
+# (type, arc, sdk, target triple, cflags)
 generic_build()
 {
-    echo "building lua-$1" ...
-    cd lua/src
-    if [ -d $1 ]; then
-        rm -rf $1
+    local folder=$BUILD_DIR/build.$1.$2
+    if [[ $REBUILD == true ]] || [[ ! -f $folder.success ]] || [[ ! -f $folder/liblua.a ]]; then
+        [[ -f $folder.success ]] && rm $folder.success
+        [[ -d $folder ]] && rm -rf $folder
+        mkdir -p $folder
+        echo "building liblua ($1 $2)..."
+        local cc="xcrun --sdk $3 clang -target $4 $COMMON_CFLAGS $5"
+        for object in $LUA_OBJECTS; do
+            echo "$cc -c $LUA_VER_NAME/src/${object/.o/.c} -o $folder/$object"
+        done | xargs -P $THREAD_COUNT -I{} sh -c '{}'
+        for object in $LUA_OBJECTS; do
+            [[ -f $folder/$object ]] || { echo "Failed to compile $object for $1 $2"; exit 1; }
+        done
+        (cd $folder && xcrun --sdk $3 libtool -static -o liblua.a $LUA_OBJECTS)
+        touch $folder.success
     fi
-    mkdir $1
-    for f in *.c
-    do
-      echo "Processing $f file..."
-      # take action on each file. $f store current file name
-      clang $2 $f -o $1/${f%.*}.o -c $CFLAGS
-    done
-    cd $1
-    ar r liblua.a lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
-    cd ../../..
 }
 
+build_libs()
+{
+    [[ -d $BUILD_DIR/build.$1 ]] && rm -rf $BUILD_DIR/build.$1
+    mkdir -p $BUILD_DIR/build.$1
+
+    if [[ "$BUILD_PLATFORMS" == *$1-arm64* ]]; then
+        if [[ "$BUILD_PLATFORMS" == *$1-x86_64* ]]; then
+            lipo -create $BUILD_DIR/build.$1.arm64/liblua.a $BUILD_DIR/build.$1.x86_64/liblua.a -output $BUILD_DIR/build.$1/liblua.a
+        else
+            cp $BUILD_DIR/build.$1.arm64/liblua.a $BUILD_DIR/build.$1/
+        fi
+    elif [[ "$BUILD_PLATFORMS" == *$1-x86_64* ]]; then
+        cp $BUILD_DIR/build.$1.x86_64/liblua.a $BUILD_DIR/build.$1/
+    fi
+}
+
+# (type, sdk, os and version, target suffix): the library for both architectures
 generic_double_build()
 {
-    generic_build "$1-x86_64" "-arch x86_64 $2"
-    generic_build "$1-arm64" "-arch arm64 $2"
-
-    if [ -d lua/src/$1 ]; then
-        rm -rf lua/src/$1
-    fi
-    mkdir lua/src/$1
-    lipo -create lua/src/$1-arm64/liblua.a lua/src/$1-x86_64/liblua.a -output lua/src/$1/liblua.a
+    [[ "$BUILD_PLATFORMS" == *$1-arm64* ]] && generic_build $1 arm64 $2 arm64-apple-$3$4 -DLUA_USE_IOS
+    [[ "$BUILD_PLATFORMS" == *$1-x86_64* ]] && generic_build $1 x86_64 $2 x86_64-apple-$3$4 -DLUA_USE_IOS
+    build_libs $1
 }
 
-build_macos_libs()
+# macOS keeps the real system(); LUA_USE_READLINE from LUA_USE_MACOSX affects only lua.c
+build_macosx_libs()
 {
-    generic_double_build macos
+    [[ "$BUILD_PLATFORMS" == *macosx-arm64* ]] && generic_build macosx arm64 macosx arm64-apple-macos$MACOSX_VERSION_ARM -DLUA_USE_MACOSX
+    [[ "$BUILD_PLATFORMS" == *macosx-x86_64* ]] && generic_build macosx x86_64 macosx x86_64-apple-macos$MACOSX_VERSION_X86_64 -DLUA_USE_MACOSX
+    build_libs macosx
 }
 
-build_catalyst_libs()
-{
-    generic_double_build catalyst "--target=$2-apple-ios13.4-macabi -isysroot $MACSYSROOT/SDKs/MacOSX.sdk -I$MACSYSROOT/SDKs/MacOSX.sdk/System/iOSSupport/usr/include/ -isystem $MACSYSROOT/SDKs/MacOSX.sdk/System/iOSSupport/usr/include -iframework $MACSYSROOT/SDKs/MacOSX.sdk/System/iOSSupport/System/Library/Frameworks -DIOS_BUILD"
-}
+# the other platforms have no system(), which LUA_USE_IOS replaces with a stub
+[[ "$BUILD_PLATFORMS" == *macosx* ]] && build_macosx_libs
+[[ "$BUILD_PLATFORMS" == *catalyst* ]] && generic_double_build catalyst macosx ios$CATALYST_VERSION -macabi
+[[ "$BUILD_PLATFORMS" == *iossim* ]] && generic_double_build iossim iphonesimulator ios$IOS_SIM_VERSION -simulator
+[[ "$BUILD_PLATFORMS" == *xrossim* ]] && generic_double_build xrossim xrsimulator xros$XROS_SIM_VERSION -simulator
+[[ "$BUILD_PLATFORMS" == *tvossim* ]] && generic_double_build tvossim appletvsimulator tvos$TVOS_SIM_VERSION -simulator
+[[ "$BUILD_PLATFORMS" == *watchossim* ]] && generic_double_build watchossim watchsimulator watchos$WATCHOS_SIM_VERSION -simulator
 
-build_simulator_libs()
-{
-    generic_double_build simulator "-fembed-bitcode-marker -isysroot $SIMSYSROOT/SDKs/iPhoneSimulator.sdk -mios-simulator-version-min=13.4 -DIOS_BUILD"
-}
+[[ "$BUILD_PLATFORMS" == *"ios "* ]] && generic_build ios arm64 iphoneos arm64-apple-ios$IOS_VERSION -DLUA_USE_IOS
+[[ "$BUILD_PLATFORMS" == *"xros "* ]] && generic_build xros arm64 xros arm64-apple-xros$XROS_VERSION -DLUA_USE_IOS
+[[ "$BUILD_PLATFORMS" == *"tvos "* ]] && generic_build tvos arm64 appletvos arm64-apple-tvos$TVOS_VERSION -DLUA_USE_IOS
+[[ "$BUILD_PLATFORMS" == *"watchos "* ]] && generic_build watchos arm64 watchos arm64-apple-watchos$WATCHOS_VERSION -DLUA_USE_IOS
 
-build_device_libs()
-{
-    generic_build ios "-arch arm64 -fembed-bitcode -isysroot $DEVSYSROOT/SDKs/iPhoneOS.sdk -mios-version-min=13.4 -DIOS_BUILD"
-}
+LIBARGS=
+[[ "$BUILD_PLATFORMS" == *macosx* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.macosx/liblua.a"
+[[ "$BUILD_PLATFORMS" == *catalyst* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.catalyst/liblua.a"
+[[ "$BUILD_PLATFORMS" == *iossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.iossim/liblua.a"
+[[ "$BUILD_PLATFORMS" == *xrossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xrossim/liblua.a"
+[[ "$BUILD_PLATFORMS" == *tvossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvossim/liblua.a"
+[[ "$BUILD_PLATFORMS" == *watchossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchossim/liblua.a"
+[[ "$BUILD_PLATFORMS" == *"ios "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.ios.arm64/liblua.a"
+[[ "$BUILD_PLATFORMS" == *"xros "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xros.arm64/liblua.a"
+[[ "$BUILD_PLATFORMS" == *"tvos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvos.arm64/liblua.a"
+[[ "$BUILD_PLATFORMS" == *"watchos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchos.arm64/liblua.a"
 
-echo "patching lua-$LUA_VER"
-if [ ! -f lua/src/loslib.c.orig ]; then
-  cp -f lua/src/loslib.c lua/src/loslib.c.orig
-else
-  cp -f lua/src/loslib.c.orig lua/src/loslib.c
-fi
-patch -p0 <$SCRIPT_DIR/loslib.c.patch
-rm -f lua/src/lua.c lua/src/luac.c
-
-
-build_macos_libs
-build_catalyst_libs
-build_simulator_libs
-build_device_libs
-
-if [ -d "$BUILD_DIR/frameworks" ]; then
-    rm -rf "$BUILD_DIR/frameworks"
-fi
-mkdir "$BUILD_DIR/frameworks"
-mkdir "$BUILD_DIR/frameworks/Headers"
-cp lua/src/luaconf.h lua/src/lua.h lua/src/lualib.h lua/src/lauxlib.h "$BUILD_DIR/frameworks/Headers/"
-
-xcodebuild -create-xcframework -library lua/src/macos/liblua.a -library lua/src/catalyst/liblua.a -library lua/src/simulator/liblua.a -library lua/src/ios/liblua.a -output "$BUILD_DIR/frameworks/lua.xcframework"
-
-touch "$BUILD_DIR/frameworks.built"
-
-fi
+[[ -d $BUILD_DIR/frameworks ]] && rm -rf $BUILD_DIR/frameworks
+mkdir -p $BUILD_DIR/frameworks/Headers
+xcodebuild -create-xcframework $LIBARGS -output $BUILD_DIR/frameworks/lua.xcframework
+cp $LUA_VER_NAME/src/luaconf.h $LUA_VER_NAME/src/lua.h $LUA_VER_NAME/src/lualib.h $LUA_VER_NAME/src/lauxlib.h $LUA_VER_NAME/src/lua.hpp $BUILD_DIR/frameworks/Headers/
