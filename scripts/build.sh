@@ -110,10 +110,11 @@ generic_build()
         [[ -d $folder ]] && rm -rf $folder
         mkdir -p $folder
         echo "building liblua ($1 $2)..."
-        local cc="xcrun --sdk $3 clang -target $4 $COMMON_CFLAGS $5"
-        for object in $LUA_OBJECTS; do
-            echo "$cc -c $LUA_VER_NAME/src/${object/.o/.c} -o $folder/$object"
-        done | xargs -P $THREAD_COUNT -I{} sh -c '{}'
+        # xargs passes only object names: BSD xargs -I limits a command to 255 bytes, and
+        # CocoaPods runs this script in a long temporary directory
+        export LUA_COMPILE="xcrun --sdk $3 clang -target $4 $COMMON_CFLAGS $5"
+        export LUA_SOURCE=$BUILD_DIR/$LUA_VER_NAME/src LUA_FOLDER=$folder
+        echo $LUA_OBJECTS | tr ' ' '\n' | xargs -n 1 -P $THREAD_COUNT bash -c '$LUA_COMPILE -c "$LUA_SOURCE/${0/.o/.c}" -o "$LUA_FOLDER/$0"'
         for object in $LUA_OBJECTS; do
             [[ -f $folder/$object ]] || { echo "Failed to compile $object for $1 $2"; exit 1; }
         done
