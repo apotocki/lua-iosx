@@ -1,10 +1,10 @@
-name: Build LUA
+name: Build Lua
 on:
   release:
     types: [published]
   push:
     tags:
-        - 5.**
+        - 5.5.1.**
   workflow_dispatch:
 jobs:
   Build:
@@ -14,12 +14,11 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build
       run: |
-        scripts/build.sh
-        for i in frameworks/*.xcframework/; do cd frameworks && zip -9 -r "$(basename -- $i).zip" $(basename -- $i) & done; wait
+        scripts/build.sh -p=macosx-both,ios,iossim-both,catalyst-both,xros,xrossim-both,watchos,watchossim-both,tvos,tvossim-both
         cd frameworks
+        zip -9 -r lua.xcframework.zip lua.xcframework
         mv Headers include
         zip -9 -r include.zip include
-        wait
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
