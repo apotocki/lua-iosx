@@ -24,7 +24,7 @@ Use the appropriate **Git tag or branch** to select the desired Lua version.
 ### Versioning Policy
 
 Branches correspond to official Lua versions.
-Tags use the format `<lua_version>.<package_patch>` (e.g. `5.5.1.0`), where `package_patch` is this repository’s packaging/build revision for that upstream version.
+Tags use the format `<lua_version>.<package_patch>` (e.g. `5.5.1.1`), where `package_patch` is this repository’s packaging/build revision for that upstream version.
 
 ---
 
@@ -131,7 +131,7 @@ Add the following to your `Podfile`:
 use_frameworks!
 pod 'lua-iosx', '~> 5.5.1'
 # or pin to a specific tag
-# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.0'
+# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.1'
 ```
 
 Then install the dependency:
