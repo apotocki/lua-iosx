@@ -169,18 +169,18 @@ build_macosx_libs()
 [[ "$BUILD_PLATFORMS" == *"watchos "* ]] && generic_build watchos arm64 watchos arm64-apple-watchos$WATCHOS_VERSION -DLUA_USE_IOS
 
 LIBARGS=
-[[ "$BUILD_PLATFORMS" == *macosx* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.macosx/liblua.a"
-[[ "$BUILD_PLATFORMS" == *catalyst* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.catalyst/liblua.a"
-[[ "$BUILD_PLATFORMS" == *iossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.iossim/liblua.a"
-[[ "$BUILD_PLATFORMS" == *xrossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xrossim/liblua.a"
-[[ "$BUILD_PLATFORMS" == *tvossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvossim/liblua.a"
-[[ "$BUILD_PLATFORMS" == *watchossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchossim/liblua.a"
-[[ "$BUILD_PLATFORMS" == *"ios "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.ios.arm64/liblua.a"
-[[ "$BUILD_PLATFORMS" == *"xros "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xros.arm64/liblua.a"
-[[ "$BUILD_PLATFORMS" == *"tvos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvos.arm64/liblua.a"
-[[ "$BUILD_PLATFORMS" == *"watchos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchos.arm64/liblua.a"
+[[ "$BUILD_PLATFORMS" == *macosx* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.macosx/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *catalyst* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.catalyst/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *iossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.iossim/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *xrossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xrossim/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *tvossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvossim/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *watchossim* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchossim/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *"ios "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.ios.arm64/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *"xros "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.xros.arm64/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *"tvos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.tvos.arm64/liblua.a -headers $BUILD_DIR/frameworks/Headers"
+[[ "$BUILD_PLATFORMS" == *"watchos "* ]] && LIBARGS="$LIBARGS -library $BUILD_DIR/build.watchos.arm64/liblua.a -headers $BUILD_DIR/frameworks/Headers"
 
 [[ -d $BUILD_DIR/frameworks ]] && rm -rf $BUILD_DIR/frameworks
 mkdir -p $BUILD_DIR/frameworks/Headers
-xcodebuild -create-xcframework $LIBARGS -output $BUILD_DIR/frameworks/lua.xcframework
 cp $LUA_VER_NAME/src/luaconf.h $LUA_VER_NAME/src/lua.h $LUA_VER_NAME/src/lualib.h $LUA_VER_NAME/src/lauxlib.h $LUA_VER_NAME/src/lua.hpp $BUILD_DIR/frameworks/Headers/
+xcodebuild -create-xcframework $LIBARGS -output $BUILD_DIR/frameworks/lua.xcframework

@@ -114,8 +114,8 @@ Add the following to your `Podfile`:
 use_frameworks!
 pod 'lua-iosx', '~> 5.5.1'
 # or pin to a specific tag
-# tags are formatted as <lua_version>.<package_patch>, e.g. 5.5.1.1
-# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.1'
+# tags are formatted as <lua_version>.<package_patch>, e.g. 5.5.1.2
+# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.2'
 ```
 
 Then install the dependency:
