@@ -112,11 +112,13 @@ Add the following to your `Podfile`:
 
 ```ruby
 use_frameworks!
-pod 'lua-iosx', '~> 5.5.1'
+pod 'lua-iosx', '~> 5.5.1', :source => 'https://github.com/apotocki/cocoapods-specs.git'
 # or pin to a specific tag
-# tags are formatted as <lua_version>.<package_patch>, e.g. 5.5.1.3
-# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.3'
+# tags are formatted as <lua_version>.<package_patch>, e.g. 5.5.1.4
+# pod 'lua-iosx', :git => 'https://github.com/apotocki/lua-iosx', :tag => '5.5.1.4'
 ```
+
+New versions are published to the [apotocki/cocoapods-specs](https://github.com/apotocki/cocoapods-specs) spec repo, because CocoaPods Trunk becomes read-only on December 2, 2026; `:source` makes CocoaPods take the pod from there.
 
 Then install the dependency:
 
@@ -148,7 +150,7 @@ Precompiled artifacts published via GitHub Releases are subject to the upstream 
 
 ## As an advertisement…
 
-Please check out my iOS application on the App Store:
+Please check out my applications:
 
 <table align="center" border="0" cellspacing="0" cellpadding="0">
   <tr>
