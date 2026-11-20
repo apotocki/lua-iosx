@@ -1,5 +1,7 @@
 ## LUA for iOS and macOS (Intel & Apple Silicon M1) & Catalyst - arm64 / x86_64
 
+> **Lua is now available through [otok](https://otok-dev.github.io/)**, which builds it from source on your machine for the platforms of your app: see [Using otok](https://github.com/apotocki/lua-iosx/blob/main/README.md#using-otok-recommended) in the `main` branch. otok provides the current versions of Lua; this branch keeps the build scripts of Lua 5.4.5.
+
 Supported version: 5.4.5
 
 This repo provides a universal script for building static LUA library for use in iOS and macOS applications.
