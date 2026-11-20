@@ -1,6 +1,8 @@
 
 ## Lua 5.5.1 for Apple Platforms
 
+> **Lua is now available through [otok](https://otok-dev.github.io/)**, which builds it from source on your machine for the platforms of your app: see [Using otok](https://github.com/apotocki/lua-iosx/blob/main/README.md#using-otok-recommended) in the `main` branch. otok provides the current versions of Lua; this branch keeps the build scripts of Lua 5.5.1.
+
 This branch contains build scripts for producing the Lua static library packaged as an XCFramework for Apple platforms, based on the **upstream Lua 5.5.1 release**.
 
 The Lua source code is fetched from the official Lua website:
