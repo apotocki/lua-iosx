@@ -1,5 +1,7 @@
 # lua-iosx
 
+> **Now available through [otok](https://otok-dev.github.io/).** otok builds Lua from source on your machine, for the platforms of your app, and hands the result to Xcode as a local Swift package: see [Using otok](#using-otok-recommended). The build scripts and the CocoaPods pod described below remain available.
+
 ## Overview
 
 `lua-iosx` is a build and distribution project that produces the **Lua static library packaged as an XCFramework** for Apple platforms.
@@ -40,6 +42,35 @@ Lua is built for:
 * Mac Catalyst
 
 Both Intel (`x86_64`) and Apple Silicon (`arm64`) architectures are supported where applicable.
+
+---
+
+## Using otok (recommended)
+
+[otok](https://otok-dev.github.io/) builds Lua from source on your machine, with your Xcode, for the platforms and deployment versions of your app, and gives the result to Xcode as a local Swift package of XCFrameworks. Install it (`brew install otok-dev/tap/otok`) and put an `otok.toml` next to your Xcode project:
+
+```toml
+[otok]
+format = 1
+
+[apple]
+platforms = ["ios", "iossim", "macosx"]
+deployment = { ios = "16.0", macos = "13.0" }
+
+[deps.lua]
+recipe = "apotocki/lua"
+version = "~> 5.5"
+```
+
+```bash
+otok install
+```
+
+Then add the `Otok` directory to your app in Xcode (**File → Add Package Dependencies… → Add Local…**) and add the product `Lua` to your target.
+
+- `platforms` takes `ios`, `iossim`, `macosx`, `catalyst`, `tvos`, `tvossim`, `watchos`, `watchossim`, `xros`, `xrossim`; `deployment` gives the minimum OS versions (`ios`, `macos`, `catalyst`, `tvos`, `watchos`, `visionos`) and is required for every platform built.
+- `otok.lock` pins the versions, the recipes and the sources by their hashes: commit it with `otok.toml`. `Otok/` is generated: add it to `.gitignore`.
+- The same recipe builds Lua for Android, Windows and Linux too. Its versions and options are in the [catalog](https://otok-dev.github.io/index/recipes/apotocki/lua/) (or `otok info apotocki/lua`); moving from the pod is described in [Coming from CocoaPods](https://otok-dev.github.io/start/from-cocoapods/).
 
 ---
 
